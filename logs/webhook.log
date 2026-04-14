@@ -1,0 +1,137 @@
+2026-04-07 17:55:34
+email=andrew.addams%40gmail.com&phone=%2B7+%28926%29+535-18-32&comment=%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9+%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%21&Checkbox=yes&Checkbox_2=yes&payment=%7B%22sys%22%3A%22none%22%2C%22systranid%22%3A%220%22%2C%22orderid%22%3A%221480331975%22%2C%22products%22%3A%5B%22%D0%9C%D0%B0%D1%80%D0%B0+%28mara30%2C+%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%3A+%D0%A1%D0%BF%D0%B8%D1%80%D1%82%D0%BE%D0%B2%D1%8B%D0%B5+%D0%B4%D1%83%D1%85%D0%B8+30%D0%BC%D0%BB%2C++%D0%A3%D0%BF%D0%B0%D0%BA%D0%BE%D0%B2%D0%BA%D0%B0%3A+%D0%9F%D0%BE%D0%B4%D0%B0%D1%80%D0%BE%D1%87%D0%BD%D0%B0%D1%8F+%D0%BB%D0%B5%D0%BD%D1%82%D0%B0+10+%D1%80%D1%83%D0%B1.%29%3D3860%22%5D%2C%22dyndiscount%22%3A%22772%22%2C%22amount%22%3A%223306.16%22%2C%22subtotal%22%3A%223860%22%2C%22delivery%22%3A%22CDEK%22%2C%22delivery_price%22%3A218.16%2C%22delivery_fio%22%3A%22%D0%9E%D1%80%D0%B0%D0%B5%D0%B2%D1%81%D0%BA%D0%B8%D0%B9+%D0%90%D0%BD%D0%B4%D1%80%D0%B5%D0%B9+%D0%90%D0%BD%D0%B4%D1%80%D0%B5%D0%B5%D0%B2%D0%B8%D1%87%22%2C%22delivery_city%22%3A%22%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0%22%2C%22delivery_address%22%3A%22RU%3A+%D0%9F%D1%83%D0%BD%D0%BA%D1%82+%D0%B2%D1%8B%D0%B4%D0%B0%D1%87%D0%B8+%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0%3A+%D1%83%D0%BB.+%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%B4%D0%BD%D0%B0%D1%8F%2C+9+%28MSK230%2C+%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0%2C+%D1%83%D0%BB.+%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%B4%D0%BD%D0%B0%D1%8F%29111524%22%2C%22delivery_comment%22%3A%22%22%7D&COOKIES=_ym_uid%3D1773081638111973677%3B+_ym_d%3D1773081638%3B+__ddg9_%3D109.252.215.208%3B+__ddg8_%3DAZ6fN5Dj7HnIPCFR%3B+__ddg10_%3D1775573664%3Btildauid%3D5b87ea052f477ee34a6775f75a160372&formid=form884699785&formname=Cart
+---
+2026-04-07 18:06:25
+{
+    "email": "andrew.addams@onmail.com",
+    "phone": "+7 (926) 535-18-32",
+    "comment": "Тестовый заказ!",
+    "Checkbox": "yes",
+    "Checkbox_2": "yes",
+    "payment": "{\"sys\":\"none\",\"systranid\":\"0\",\"orderid\":\"1633695558\",\"products\":[\"Мара (mara30, Формат: Спиртовые духи 30мл,  Упаковка: Подарочная лента 10 руб.)=3860\"],\"dyndiscount\":\"772\",\"amount\":\"3306.16\",\"subtotal\":\"3860\",\"delivery\":\"CDEK\",\"delivery_price\":218.16,\"delivery_fio\":\"Ораевский Андрей Андреевич\",\"delivery_city\":\"Москва\",\"delivery_address\":\"RU: Пункт выдачи заказа: ул. Электродная, 9 (MSK230, Москва, ул. Электродная)111524\",\"delivery_comment\":\"\"}",
+    "COOKIES": "_ym_uid=1773081638111973677; _ym_d=1773081638; __ddg9_=109.252.215.208; __ddg8_=PN2C7kkW4v9F3Q24; __ddg10_=1775574330;tildauid=47c1adc408f2473c41a359cd51c61e50",
+    "formid": "form884699785",
+    "formname": "Cart"
+}
+---
+2026-04-07 21:16:55
+{
+    "email": "andrew.addams@gmail.com",
+    "phone": "+7 (926) 535-18-32",
+    "comment": "Тестовый заказ!",
+    "Checkbox": "yes",
+    "Checkbox_2": "yes",
+    "payment": "{\"sys\":\"none\",\"systranid\":\"0\",\"orderid\":\"1932333875\",\"products\":[\"Мара (mara3,5, Формат: Спиртовые духи 3.5мл)=600\",\"Хель (hel10s, Формат: Спиртовые духи 10мл)=1700\",\"Мистерия (misteriya15, Формат: Спиртовые духи 15мл)=2350\",\"Топ 5 ароматов=1700\"],\"dyndiscount\":\"1270\",\"amount\":\"5080\",\"subtotal\":\"6350\",\"delivery\":\"CDEK\",\"delivery_price\":0,\"delivery_fio\":\"Ораевский Андрей Андреевич\",\"delivery_city\":\"Москва\",\"delivery_address\":\"RU: Пункт выдачи заказа: ул. Первомайская, 25\\\/26 (MSK655, Москва, ул. Первомайская)105037\",\"delivery_comment\":\"\"}",
+    "COOKIES": "_ym_uid=1773081638111973677; _ym_d=1773081638; __ddg8_=hZS17Ghdlsccf63F; __ddg10_=1775585751; __ddg9_=109.252.215.208;tildauid=2c1f4653c357e0c587ba937d73edcb71",
+    "formid": "form884699785",
+    "formname": "Cart"
+}
+---
+2026-04-08 14:52:28
+{
+    "email": "vika.litvinova.06@gmail.com",
+    "phone": "+7 (925) 404-92-81",
+    "Checkbox": "yes",
+    "Checkbox_2": "yes",
+    "payment": "{\"sys\":\"tinkoff\",\"systranid\":\"8292323762\",\"orderid\":\"1656750044\",\"products\":[\"Хель (hel10s, Формат: Спиртовые духи 10мл)=1700\",\"Сирин (sirin10s, Формат: Спиртовые духи 10мл)=1700\",\"Хтонь (hton10s, Формат: Спиртовые духи 10мл)=1700\",\"Кельтское море (more10s, Формат: Спиртовые духи 10мл)=1700\",\"Ведьма в городе (vedmavgorode10s, Формат: Спиртовые духи 10мл)=1700\",\"Демон перекрёстка (demon10s, Формат: Спиртовые духи 10мл)=1700\",\"451 (451s10, Формат: Спиртовые духи 10мл)=1700\",\"Звёздная пыль (zvezdnaya10s, Формат: Спиртовые духи 10мл)=1700\",\"Наяда (naiada10s, Формат: Спиртовые духи 10мл)=1700\",\"Повелительница туманов (tumanov10s, Формат: Спиртовые духи 10мл)=1700\",\"Ведьмин круг (vedminkrug10s, Формат: Спиртовые духи 10мл)=1700\",\"Алхимик (alhimik10s, Формат: Спиртовые духи 10мл)=1700\",\"Граф (graf10s, Формат: Спиртовые духи 10мл)=1700\",\"Заброшенный замок (zamok10s, Формат: Спиртовые духи 10мл)=1700\",\"Факультет проклятий (facultet10s, Формат: Спиртовые духи 10мл)=1700\",\"Любовь после смерти (lubov10s, Формат: Спиртовые духи 10мл)=1700\",\"Клятва (klyatva10s, Формат: Спиртовые духи 10мл)=1700\",\"Тёмная вода (voda10s, Формат: Спиртовые духи 10мл)=1700\",\"Знак зверя (znakzverya10s, Формат: Спиртовые духи 10мл)=1700\",\"Здесь живут феи (fei10s, Формат: Спиртовые духи 10мл)=1700\"],\"dyndiscount\":\"6800\",\"amount\":\"27200\",\"subtotal\":\"34000\",\"delivery\":\"CDEK\",\"delivery_price\":0,\"delivery_fio\":\"Литвинова Виктория Алекандровна\",\"delivery_city\":\"Москва\",\"delivery_address\":\"RU: Пункт выдачи заказа: ул. Соколово-Мещерская, 14 (MSK381, Москва, ул. Соколово-Мещерская)125466\",\"delivery_comment\":\"\"}",
+    "COOKIES": "_ym_uid=177513117241235783; _ym_d=1775131172;tildauid=006067a5a15b9e0d48a60fbd87aa6e57",
+    "formid": "form884699785",
+    "formname": "Cart"
+}
+---
+2026-04-09 11:52:21
+{
+    "email": "luz-vika97@yandex.ru",
+    "phone": "+7 (988) 076-46-33",
+    "Checkbox": "yes",
+    "Checkbox_2": "yes",
+    "payment": "{\"sys\":\"tinkoff\",\"systranid\":\"8297027257\",\"orderid\":\"2064651932\",\"products\":[\"Хтонь (hton10s, Формат: Спиртовые духи 10мл)=1700\"],\"dyndiscount\":\"340\",\"amount\":\"1715.2\",\"subtotal\":\"1700\",\"delivery\":\"CDEK\",\"delivery_price\":355.2,\"delivery_fio\":\"Лужинская Виктория Олеговна\",\"delivery_city\":\"Ахтубинск\",\"delivery_address\":\"RU: Пункт выдачи заказа: ул. Волгоградская, 97 (AKHT4, Ахтубинск, ул. Волгоградская)416500\",\"delivery_comment\":\"\"}",
+    "COOKIES": "__ddg9_=94.233.250.211; _ym_uid=1775724119810043672; _ym_d=1775724119; _ym_isad=1; _ym_visorc=w; __ddg8_=OsQN3i3o8aficScN; __ddg10_=1775724119;tildauid=9aa73603d0a6f398fbf3a733b8bc31e3",
+    "formid": "form884699785",
+    "formname": "Cart"
+}
+---
+2026-04-09 17:00:24
+{
+    "email": "artemisial@bk.ru",
+    "phone": "+7 (921) 602-49-06",
+    "Checkbox": "yes",
+    "Checkbox_2": "yes",
+    "payment": "{\"sys\":\"tinkoff\",\"systranid\":\"8298569007\",\"orderid\":\"1090904404\",\"products\":[\"Наяда (naiada3,5, Формат: Спиртовые духи 3.5мл)=600\",\"Секретное знание (znanie10s, Формат: Спиртовые духи 10мл)=1700\"],\"dyndiscount\":\"460\",\"amount\":\"2131.82\",\"subtotal\":\"2300\",\"delivery\":\"Яндекс\",\"delivery_price\":291.82,\"delivery_fio\":\"Казакова Анна Владимировна\",\"delivery_city\":\"Череповец\",\"delivery_address\":\"RU: Пункт выдачи заказа: Череповец Набережная улица 19 (Пункт выдачи заказов Яндекс Маркета)162622, Череповец\",\"delivery_comment\":\"\"}",
+    "COOKIES": "__ddg8_=rcXB7g3k3UHDHLCD; __ddg10_=1775742286; __ddg9_=83.220.227.39; _ym_uid=1775742290560640526; _ym_d=1775742290; _ym_isad=2; _ym_visorc=w;tildauid=fb6c0ef76a55a594eb18b2ed35dd2f70",
+    "formid": "form884699785",
+    "formname": "Cart"
+}
+---
+2026-04-10 14:04:27
+{
+    "email": "potapova.g.n@mail.ru",
+    "phone": "+7 (953) 528-21-48",
+    "Checkbox": "yes",
+    "Checkbox_2": "yes",
+    "payment": "{\"sys\":\"tinkoff\",\"systranid\":\"8303702290\",\"orderid\":\"1468049180\",\"products\":[\"Шабаш (shabash3,5, Формат: Спиртовые духи 3.5мл)=600\",\"Дворцовые интриги (intrigi3,5, Формат: Спиртовые духи 3.5мл)=600\",\"Барон Суббота (baron10s, Формат: Спиртовые духи 10мл)=1700\",\"Мокошь (mokosh30, Формат: Спиртовые духи 30мл)=3850\"],\"dyndiscount\":\"1350\",\"amount\":\"5400\",\"subtotal\":\"6750\",\"delivery\":\"CDEK\",\"delivery_price\":0,\"delivery_fio\":\"Романико Галина Николаевна\",\"delivery_city\":\"Петрозаводск\",\"delivery_address\":\"RU: Пункт выдачи заказа: ул. Генерала Фролова, 15 (PTR34, Петрозаводск, ул. Генерала Фролова)185026\",\"delivery_comment\":\"\"}",
+    "COOKIES": "_ym_uid=1773814571465862302; _ym_d=1773814571; _ym_isad=2; _ym_visorc=w; __ddg8_=uiYT6CzBs5a3Rqkw; __ddg10_=1775818217; __ddg9_=185.90.100.144;tildauid=95dd1ba80b512daa8157636face57e17",
+    "formid": "form884699785",
+    "formname": "Cart"
+}
+---
+2026-04-12 00:28:17
+{
+    "email": "aluona.willow@yandex.ru",
+    "phone": "+7 (901) 700-31-15",
+    "Checkbox": "yes",
+    "Checkbox_2": "yes",
+    "payment": "{\"sys\":\"tinkoff\",\"systranid\":\"8312656455\",\"orderid\":\"1307222926\",\"products\":[\"Навь (nav10s, Формат: Спиртовые духи 10мл)=1700\",\"Кельтское море (more10s, Формат: Спиртовые духи 10мл)=1700\",\"Запретная тропа (tropa10s, Формат: Спиртовые духи 10мл)=1700\",\"Оракул (orakul10s, Формат: Спиртовые духи 10мл)=1700\",\"Здесь живут феи (fei10s, Формат: Спиртовые духи 10мл)=1700\",\"451 (451s10, Формат: Спиртовые духи 10мл)=1700\"],\"dyndiscount\":\"2040\",\"amount\":\"8160\",\"subtotal\":\"10200\",\"delivery\":\"Яндекс\",\"delivery_price\":0,\"delivery_fio\":\"Вершкова Алёна Андреевна\",\"delivery_city\":\"Москва\",\"delivery_address\":\"RU: Пункт выдачи заказа: Москва улица Генерала Тюленева 4А стр3 (Пункт выдачи заказов Яндекс Маркета)117465, Москва\",\"delivery_comment\":\"\"}",
+    "COOKIES": "_ym_uid=1775927214355765950; _ym_d=1775927214; _ym_isad=2;tildauid=d103ed8ed9f78a69b94f24947b8e5313",
+    "formid": "form884699785",
+    "formname": "Cart"
+}
+---
+2026-04-12 10:20:18
+{
+    "email": "govnoest3@mail.ru",
+    "phone": "+7 (920) 581-86-99",
+    "Checkbox": "yes",
+    "Checkbox_2": "yes",
+    "payment": "{\"sys\":\"tinkoff\",\"systranid\":\"8314485926\",\"orderid\":\"1817903478\",\"products\":[\"Топ 5 ароматов=1700\",\"Убежище (ubezhishe3,5, Формат: Спиртовые духи 3.5мл)=600\"],\"dyndiscount\":\"460\",\"amount\":\"2131.82\",\"subtotal\":\"2300\",\"delivery\":\"Яндекс\",\"delivery_price\":291.82,\"delivery_fio\":\"Балашова Динара Юсефовна \",\"delivery_city\":\"Пенза\",\"delivery_address\":\"RU: Пункт выдачи заказа: Пенза Прогонный проезд 21 (Пункт выдачи заказов партнёра)440067, Пенза\",\"delivery_comment\":\"\"}",
+    "COOKIES": "_ym_visorc=w; __ddg10_=1775978009; __ddg8_=lk2HdhamoQ5w8GjN; __ddg9_=80.95.44.114; _ym_isad=2; _ym_fa=10999.ObhbanEIAuGMZshItft04kWEPOtg9Zo4YCQu5dHJI1ICCfS2yc7rQIA6GdMbpH6x.17mpeJj3NPHg3ZFwFDv4zxkuOQY%2C; _ym_d=1773729740; _ym_uid=1773729740438715377;tildauid=4135f54721439145fc8e92cf9aeeaede",
+    "formid": "form884699785",
+    "formname": "Cart"
+}
+---
+2026-04-12 12:44:16
+{
+    "email": "anna_usolie99@mail.ru",
+    "phone": "+7 (904) 131-26-30",
+    "Checkbox": "yes",
+    "Checkbox_2": "yes",
+    "payment": "{\"sys\":\"tinkoff\",\"systranid\":\"8315167127\",\"orderid\":\"1718918311\",\"products\":[\"Мара (mara15, Формат: Спиртовые духи 15мл)=2350\"],\"dyndiscount\":\"470\",\"amount\":\"2549.1\",\"subtotal\":\"2350\",\"delivery\":\"CDEK\",\"delivery_price\":669.1,\"delivery_fio\":\"Иванова Анна Евгеньевна \",\"delivery_city\":\"Иркутск\",\"delivery_address\":\"RU: Пункт выдачи заказа: ул. Красноярская, 31\\\/1 (IRK78, Иркутск, ул. Красноярская)664009\",\"delivery_comment\":\"\"}",
+    "COOKIES": "__ddg9_=91.149.75.24; _ym_uid=1775985927895343656; _ym_d=1775985927; _ym_isad=2; _ym_visorc=w; __ddg8_=3n8xq76i062yG8Td; __ddg10_=1775986489;tildauid=abe7a619ba1dae9161c594d0c682a983",
+    "formid": "form884699785",
+    "formname": "Cart"
+}
+---
+2026-04-13 08:36:11
+{
+    "email": "mihailzador1998@gmail.com",
+    "phone": "+7 (916) 334-51-48",
+    "Checkbox": "yes",
+    "Checkbox_2": "yes",
+    "payment": "{\"sys\":\"tinkoff\",\"systranid\":\"8319318391\",\"orderid\":\"1986750545\",\"products\":[\"451 (451s15, Формат: Спиртовые духи 15мл)=2350\",\"Сладкий яд (yad10s, Формат: Спиртовые духи 10мл)=1700\",\"Искушение (iskushenie10s, Формат: Спиртовые духи 10мл)=1700\",\"Граф (graf10s, Формат: Спиртовые духи 10мл)=1700\",\"Дворцовые интриги (intrigi10s, Формат: Спиртовые духи 10мл)=1700\",\"Одержимость (oderzhimost10s, Формат: Спиртовые духи 10мл)=1700\"],\"dyndiscount\":\"2170\",\"amount\":\"8680\",\"subtotal\":\"10850\",\"delivery\":\"Яндекс\",\"delivery_price\":0,\"delivery_fio\":\"Задорожный Михаил Станиславович\",\"delivery_city\":\"Москва\",\"delivery_address\":\"RU: Пункт выдачи заказа: Москва Бойцовая улица 13 к1 (Пункт выдачи заказов Яндекс Маркета)107150, Москва\",\"delivery_comment\":\"\"}",
+    "COOKIES": "_ym_uid=1773921048651213720; _ym_d=1773921048; __ddg9_=188.94.231.7; _ym_visorc=w; _ym_isad=2; __ddg8_=vtgTZLBqwLcZxcv6; __ddg10_=1776057829;tildauid=25229d3fdf80f61ec9002ea63ef35b8b",
+    "formid": "form884699785",
+    "formname": "Cart"
+}
+---
+2026-04-13 09:32:15
+{
+    "email": "ksunikadm@ya.ru",
+    "phone": "+7 (908) 881-45-71",
+    "Checkbox": "yes",
+    "Checkbox_2": "yes",
+    "payment": "{\"sys\":\"tinkoff\",\"systranid\":\"8319576613\",\"orderid\":\"1689337767\",\"products\":[\"Кельтское море (more3,5, Формат: Спиртовые духи 3.5мл)=600\",\"Ведьма в городе (vedmavgorode3,5, Формат: Спиртовые духи 3.5мл)=600\",\"Алхимик (alhimik3,5, Формат: Спиртовые духи 3.5мл)=600\"],\"dyndiscount\":\"360\",\"amount\":\"1700.8\",\"subtotal\":\"1800\",\"delivery\":\"CDEK\",\"delivery_price\":260.8,\"delivery_fio\":\"Дмитриева Ксения Андреевна \",\"delivery_city\":\"Санкт-Петербург\",\"delivery_address\":\"RU: Пункт выдачи заказа: ул. Восстания, 42, пом7-Н (SPB290, Санкт-Петербург, ул. Восстания)191123\",\"delivery_comment\":\"\"}",
+    "COOKIES": "_ym_visorc=w; __ddg10_=1776060763; __ddg8_=GzwyIvnRPgv3wVXS; __ddg9_=95.24.234.114; _ym_fa=10999.TUrIY8F5iVi0ipGRSuygvGSPWAZZvNStmpF4W-gz_IIU_Su2j7MSx8zF_uz7AZK4.JQMRc1-e-WXLyndR7r14WCpOWH4%2C; _ym_d=1776029981; _ym_isad=2; _ym_uid=1776029981862913523;tildauid=b8a9093e68bc7dff8d85777a3f9bcb61",
+    "formid": "form884699785",
+    "formname": "Cart"
+}
+---
