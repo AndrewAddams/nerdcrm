@@ -8,9 +8,9 @@
 
 // Параметры подключения — ЗАМЕНИ НА СВОИ!
 define('DB_HOST', 'localhost:3308');           // Хост базы данных (обычно localhost)
-define('DB_NAME', '111');              // Имя базы данных
-define('DB_USER', '111');                // Имя пользователя MySQL
-define('DB_PASS', '111');                    // Пароль пользователя MySQL
+define('DB_NAME', 'andrewadda');              // Имя базы данных
+define('DB_USER', 'andrewadda');                // Имя пользователя MySQL
+define('DB_PASS', '13*FLlfVC*13');                    // Пароль пользователя MySQL
 define('DB_CHARSET', 'utf8mb4');          // Кодировка
 
 /**

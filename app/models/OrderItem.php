@@ -5,6 +5,11 @@
 
 require_once __DIR__ . '/../core/Model.php';
 
+// Константа для формата "Свободная цена" (если файл constants.php не загружен)
+if (!defined('FLEXIBLE_PRICE_FORMAT_ID')) {
+    define('FLEXIBLE_PRICE_FORMAT_ID', 99);
+}
+
 class OrderItem extends Model
 {
     protected $table = 'order_items';
@@ -12,6 +17,7 @@ class OrderItem extends Model
     
     /**
      * Получить товары для производства
+     * Исключаем товары с форматом "Свободная цена" (сертификаты и т.п.)
      */
     public function getProductionItems()
     {
@@ -31,6 +37,7 @@ class OrderItem extends Model
                 INNER JOIN statuses s ON oi.status_order_item_id = s.id
                 WHERE s.name = 'Сделать'
                 AND o.deleted_at IS NULL
+                AND oi.format_id != " . FLEXIBLE_PRICE_FORMAT_ID . "
                 ORDER BY p.name ASC";
         
         $stmt = $this->db->query($sql);
@@ -75,6 +82,7 @@ class OrderItem extends Model
     
     /**
      * Получить количество товаров со статусом "Сделать"
+     * Исключаем товары с форматом "Свободная цена"
      */
     public function getMakeItemsCount()
     {
@@ -83,7 +91,8 @@ class OrderItem extends Model
                 INNER JOIN statuses s ON oi.status_order_item_id = s.id
                 INNER JOIN orders o ON oi.order_id = o.id
                 WHERE s.name = 'Сделать'
-                AND o.deleted_at IS NULL";
+                AND o.deleted_at IS NULL
+                AND oi.format_id != " . FLEXIBLE_PRICE_FORMAT_ID;
         
         $stmt = $this->db->query($sql);
         $result = $stmt->fetch();
@@ -93,6 +102,7 @@ class OrderItem extends Model
     
     /**
      * Получить товары со статусом "Сделать" по заказу
+     * Исключаем товары с форматом "Свободная цена"
      */
     public function getMakeItemsByOrderId($orderId)
     {
@@ -105,7 +115,8 @@ class OrderItem extends Model
                 INNER JOIN formats f ON oi.format_id = f.id
                 INNER JOIN statuses s ON oi.status_order_item_id = s.id
                 WHERE oi.order_id = :order_id
-                AND s.name = 'Сделать'";
+                AND s.name = 'Сделать'
+                AND oi.format_id != " . FLEXIBLE_PRICE_FORMAT_ID;
         
         $stmt = $this->db->query($sql, ['order_id' => $orderId]);
         return $stmt->fetchAll();

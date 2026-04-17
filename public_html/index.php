@@ -8,8 +8,8 @@
 
 // Включаем отображение ошибок при разработке
 // В продакшене нужно отключить или залогировать
-error_reporting(0);
-ini_set('display_errors', 0);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 // Запускаем сессию для аутентификации
 session_start();
@@ -39,6 +39,9 @@ spl_autoload_register(function ($className) {
 
 // Подключаем конфигурацию базы данных (она не использует автозагрузку)
 require_once APP_PATH . '/config/database.php';
+
+// Подключаем конфигурационные константы
+require_once APP_PATH . '/config/constants.php';
 
 // Создаём экземпляр роутера
 $router = new Router($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

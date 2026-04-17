@@ -87,7 +87,6 @@
                         <span>Скидка %</span>
                         <span>Цена</span>
                         <span>Цена со скидкой</span>
-                        <span>Цена (вручную)</span>
                         <span></span>
                     </div>
                     <div id="itemsContainer"></div>
@@ -165,7 +164,7 @@
     }
     .items-header {
         display: grid;
-        grid-template-columns: 2fr 1.5fr 0.8fr 1fr 1fr 1fr 0.5fr;
+        grid-template-columns: 2fr 1.5fr 0.8fr 1fr 1fr 0.5fr;
         gap: 12px;
         padding: 10px 0;
         font-weight: 600;
@@ -176,7 +175,7 @@
     }
     .item-row {
         display: grid;
-        grid-template-columns: 2fr 1.5fr 0.8fr 1fr 1fr 1fr 0.5fr;
+        grid-template-columns: 2fr 1.5fr 0.8fr 1fr 1fr 0.5fr;
         gap: 12px;
         align-items: center;
         margin-bottom: 8px;
@@ -307,13 +306,6 @@
     input[list]::-webkit-calendar-picker-indicator {
         cursor: pointer;
     }
-    .custom-price-input {
-        width: 100%;
-        padding: 6px 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 13px;
-    }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
@@ -327,9 +319,6 @@ let productsList = [];
 let formatsList = [];
 let sourcesList = [];
 let shippingMethodsList = [];
-
-// Константа для формата "Свободная цена"
-const FLEXIBLE_PRICE_FORMAT_ID = 99;
 
 // Инициализация
 function initOrderModal() {
@@ -408,7 +397,7 @@ async function loadAllData() {
 }
 
 // Добавление строки товара с datalist
-function addNewItemRow(productId = null, formatId = null, discountPercent = 0, customPrice = null) {
+function addNewItemRow(productId = null, formatId = null, discountPercent = 0) {
     const container = document.getElementById('itemsContainer');
     if (!container) return;
     
@@ -441,15 +430,12 @@ function addNewItemRow(productId = null, formatId = null, discountPercent = 0, c
         <input type="number" class="discount-input" data-item-id="${itemId}" value="${discountPercent}" min="0" max="100" step="1">
         <span class="item-price">0.00 ₽</span>
         <span class="item-price-with-discount">0.00 ₽</span>
-        <input type="number" class="custom-price-input" data-item-id="${itemId}" placeholder="Введите цену" step="0.01" min="0" style="width: 100%; display: none;">
         <button type="button" class="remove-item-btn" data-item-id="${itemId}">✕</button>
     `;
     container.appendChild(row);
     
     const productInput = row.querySelector('.product-input');
     const formatInput = row.querySelector('.format-input');
-    const discountInput = row.querySelector('.discount-input');
-    const customPriceInput = row.querySelector('.custom-price-input');
     
     const productMap = {};
     productsList.forEach(p => {
@@ -473,35 +459,16 @@ function addNewItemRow(productId = null, formatId = null, discountPercent = 0, c
     
     formatInput.addEventListener('change', function() {
         const selectedText = this.value;
-        const formatIdVal = formatMap[selectedText];
+        const formatId = formatMap[selectedText];
         const price = formatPriceMap[selectedText] || 0;
-        if (formatIdVal) {
-            this.dataset.formatId = formatIdVal;
+        if (formatId) {
+            this.dataset.formatId = formatId;
             this.dataset.price = price;
         }
-        
-        // Показываем/скрываем поле ручного ввода цены для формата "Свободная цена"
-        if (formatIdVal == FLEXIBLE_PRICE_FORMAT_ID) {
-            customPriceInput.style.display = 'block';
-            customPriceInput.required = true;
-            // Очищаем автоматическую цену
-            delete formatInput.dataset.price;
-            // Пересчитываем с ручной ценой
-            calculateItemPrice(row);
-        } else {
-            customPriceInput.style.display = 'none';
-            customPriceInput.required = false;
-            customPriceInput.value = '';
-            // Пересчитываем с автоматической ценой
-            calculateItemPrice(row);
-        }
-    });
-    
-    customPriceInput.addEventListener('input', function() {
         calculateItemPrice(row);
     });
     
-    discountInput.addEventListener('input', () => calculateItemPrice(row));
+    row.querySelector('.discount-input').addEventListener('input', () => calculateItemPrice(row));
     row.querySelector('.remove-item-btn').addEventListener('click', () => row.remove());
     
     if (productId) {
@@ -518,12 +485,6 @@ function addNewItemRow(productId = null, formatId = null, discountPercent = 0, c
             formatInput.value = format.text;
             formatInput.dataset.formatId = formatId;
             formatInput.dataset.price = format.price;
-            
-            // Если это формат "Свободная цена" и есть customPrice
-            if (formatId == FLEXIBLE_PRICE_FORMAT_ID && customPrice !== null) {
-                customPriceInput.style.display = 'block';
-                customPriceInput.value = customPrice;
-            }
         }
     }
     
@@ -534,20 +495,10 @@ function addNewItemRow(productId = null, formatId = null, discountPercent = 0, c
 function calculateItemPrice(row) {
     const formatInput = row.querySelector('.format-input');
     const discountInput = row.querySelector('.discount-input');
-    const customPriceInput = row.querySelector('.custom-price-input');
     const priceSpan = row.querySelector('.item-price');
     const priceWithDiscountSpan = row.querySelector('.item-price-with-discount');
     
-    const formatId = formatInput?.dataset?.formatId;
-    let price = 0;
-    
-    // Если выбран формат "Свободная цена" (99)
-    if (formatId == FLEXIBLE_PRICE_FORMAT_ID) {
-        price = parseFloat(customPriceInput?.value || 0);
-    } else {
-        price = parseFloat(formatInput?.dataset?.price || 0);
-    }
-    
+    const price = parseFloat(formatInput?.dataset?.price || 0);
     const discount = parseFloat(discountInput?.value || 0);
     const priceWithDiscount = price * (1 - discount / 100);
     
@@ -580,27 +531,18 @@ function getFormData() {
         const productInput = row.querySelector('.product-input');
         const formatInput = row.querySelector('.format-input');
         const discountInput = row.querySelector('.discount-input');
-        const customPriceInput = row.querySelector('.custom-price-input');
         
         const productId = productInput?.dataset?.productId;
         const formatId = formatInput?.dataset?.formatId;
         const price = parseFloat(formatInput?.dataset?.price || 0);
-        const customPrice = parseFloat(customPriceInput?.value || 0);
         
         if (productId && formatId) {
-            const itemData = {
+            items.push({
                 product_id: parseInt(productId),
                 format_id: parseInt(formatId),
                 discount_percent: parseInt(discountInput?.value || 0),
                 price: price
-            };
-            
-            // Если это формат "Свободная цена" — добавляем custom_price
-            if (parseInt(formatId) == FLEXIBLE_PRICE_FORMAT_ID && customPrice > 0) {
-                itemData.custom_price = customPrice;
-            }
-            
-            items.push(itemData);
+            });
         }
     });
     return {
@@ -643,12 +585,7 @@ function fillFormData(order) {
     
     if (order.items && order.items.length > 0) {
         order.items.forEach(item => {
-            // Для формата "Свободная цена" нужно передать custom_price
-            let customPrice = null;
-            if (item.format_id == FLEXIBLE_PRICE_FORMAT_ID) {
-                customPrice = item.price;
-            }
-            addNewItemRow(item.product_id, item.format_id, item.discount_percent, customPrice);
+            addNewItemRow(item.product_id, item.format_id, item.discount_percent);
         });
     }
     updateTotals();
@@ -687,14 +624,6 @@ async function saveOrder(e) {
     // Проверяем товары
     if (formData.items.length === 0) {
         missingFields.push('Товары (добавьте хотя бы один товар)');
-    }
-    
-    // Проверяем, что для сертификатов указана цена
-    for (const item of formData.items) {
-        if (item.format_id == FLEXIBLE_PRICE_FORMAT_ID && (!item.custom_price || item.custom_price <= 0)) {
-            missingFields.push('Цена для товара со свободной ценой (укажите сумму в поле "Цена (вручную)")');
-            break;
-        }
     }
     
     // Если есть незаполненные поля — показываем сообщение

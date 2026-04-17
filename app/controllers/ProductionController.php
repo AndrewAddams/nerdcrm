@@ -10,6 +10,11 @@ require_once __DIR__ . '/../core/Controller.php';
 require_once __DIR__ . '/../models/OrderItem.php';
 require_once __DIR__ . '/../models/Order.php';
 
+// Константа для формата "Свободная цена" (если файл constants.php не загружен)
+if (!defined('FLEXIBLE_PRICE_FORMAT_ID')) {
+    define('FLEXIBLE_PRICE_FORMAT_ID', 99);
+}
+
 class ProductionController extends Controller
 {
     private $orderItemModel;

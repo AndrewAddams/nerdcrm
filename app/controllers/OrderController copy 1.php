@@ -15,17 +15,6 @@ require_once __DIR__ . '/../models/Source.php';
 require_once __DIR__ . '/../models/ShippingMethod.php';
 require_once __DIR__ . '/../models/Status.php';
 
-// Константы для формата "Свободная цена" (если файл constants.php не загружен)
-if (!defined('FLEXIBLE_PRICE_FORMAT_ID')) {
-    define('FLEXIBLE_PRICE_FORMAT_ID', 99);
-}
-if (!defined('ORDER_ITEM_STATUS_READY')) {
-    define('ORDER_ITEM_STATUS_READY', 8);
-}
-if (!defined('ORDER_ITEM_STATUS_IN_WORK')) {
-    define('ORDER_ITEM_STATUS_IN_WORK', 6);
-}
-
 class OrderController extends Controller
 {
     private $orderModel;
@@ -181,53 +170,22 @@ class OrderController extends Controller
                 return;
             }
             
-            $formatId = (int)$item['format_id'];
-            $isFlexiblePrice = ($formatId == FLEXIBLE_PRICE_FORMAT_ID);
+            $price = (float)$item['price'];
+            $discount = (int)($item['discount_percent'] ?? 0);
             
-            if ($isFlexiblePrice) {
-                // Для товаров со свободной ценой
-                $price = (float)($item['custom_price'] ?? $item['price'] ?? 0);
-                
-                if ($price <= 0) {
-                    $this->error('Для товара со свободной ценой укажите цену');
-                    return;
-                }
-                
-                $discount = (int)($item['discount_percent'] ?? 0);
-                
-                if (!$this->validateDiscountPercent($discount)) {
-                    return;
-                }
-                
-                $priceWithDiscount = $this->orderItemModel->calculatePriceWithDiscount($price, $discount);
-                
-                $items[] = [
-                    'product_id' => (int)$item['product_id'],
-                    'format_id' => $formatId,
-                    'price' => $price,
-                    'discount_percent' => $discount,
-                    'price_with_discount' => $priceWithDiscount,
-                    'status_order_item_id' => ORDER_ITEM_STATUS_READY
-                ];
-            } else {
-                // Существующая логика для обычных товаров
-                $price = (float)$item['price'];
-                $discount = (int)($item['discount_percent'] ?? 0);
-                
-                if (!$this->validateDiscountPercent($discount)) {
-                    return;
-                }
-                
-                $priceWithDiscount = $this->orderItemModel->calculatePriceWithDiscount($price, $discount);
-                
-                $items[] = [
-                    'product_id' => (int)$item['product_id'],
-                    'format_id' => $formatId,
-                    'price' => $price,
-                    'discount_percent' => $discount,
-                    'price_with_discount' => $priceWithDiscount
-                ];
+            if (!$this->validateDiscountPercent($discount)) {
+                return;
             }
+            
+            $priceWithDiscount = $this->orderItemModel->calculatePriceWithDiscount($price, $discount);
+            
+            $items[] = [
+                'product_id' => (int)$item['product_id'],
+                'format_id' => (int)$item['format_id'],
+                'price' => $price,
+                'discount_percent' => $discount,
+                'price_with_discount' => $priceWithDiscount
+            ];
             
             $totalItemsCost += $priceWithDiscount;
         }
@@ -317,54 +275,23 @@ class OrderController extends Controller
                 return;
             }
             
-            $formatId = (int)$item['format_id'];
-            $isFlexiblePrice = ($formatId == FLEXIBLE_PRICE_FORMAT_ID);
+            $price = (float)$item['price'];
+            $discount = (int)($item['discount_percent'] ?? 0);
             
-            if ($isFlexiblePrice) {
-                // Для товаров со свободной ценой
-                $price = (float)($item['custom_price'] ?? $item['price'] ?? 0);
-                
-                if ($price <= 0) {
-                    $this->error('Для товара со свободной ценой укажите цену');
-                    return;
-                }
-                
-                $discount = (int)($item['discount_percent'] ?? 0);
-                
-                if (!$this->validateDiscountPercent($discount)) {
-                    return;
-                }
-                
-                $priceWithDiscount = $this->orderItemModel->calculatePriceWithDiscount($price, $discount);
-                
-                $items[] = [
-                    'product_id' => (int)$item['product_id'],
-                    'format_id' => $formatId,
-                    'status_order_item_id' => ORDER_ITEM_STATUS_READY,
-                    'price' => $price,
-                    'discount_percent' => $discount,
-                    'price_with_discount' => $priceWithDiscount
-                ];
-            } else {
-                // Существующая логика для обычных товаров
-                $price = (float)$item['price'];
-                $discount = (int)($item['discount_percent'] ?? 0);
-                
-                if (!$this->validateDiscountPercent($discount)) {
-                    return;
-                }
-                
-                $priceWithDiscount = $this->orderItemModel->calculatePriceWithDiscount($price, $discount);
-                
-                $items[] = [
-                    'product_id' => (int)$item['product_id'],
-                    'format_id' => $formatId,
-                    'status_order_item_id' => (int)($item['status_id'] ?? $this->orderModel->getDefaultStatusId('order_item')),
-                    'price' => $price,
-                    'discount_percent' => $discount,
-                    'price_with_discount' => $priceWithDiscount
-                ];
+            if (!$this->validateDiscountPercent($discount)) {
+                return;
             }
+            
+            $priceWithDiscount = $this->orderItemModel->calculatePriceWithDiscount($price, $discount);
+            
+            $items[] = [
+                'product_id' => (int)$item['product_id'],
+                'format_id' => (int)$item['format_id'],
+                'status_order_item_id' => (int)($item['status_id'] ?? $this->orderModel->getDefaultStatusId('order_item')),
+                'price' => $price,
+                'discount_percent' => $discount,
+                'price_with_discount' => $priceWithDiscount
+            ];
             
             $totalItemsCost += $priceWithDiscount;
         }
