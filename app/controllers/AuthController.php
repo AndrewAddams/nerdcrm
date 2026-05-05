@@ -18,21 +18,51 @@ class AuthController extends Controller
     {
         $data = $this->getRequestData();
         
-        // Валидируем обязательные поля
-        $required = ['name', 'password'];
-        if (!$this->validateRequired($data, $required)) {
+        // Валидация входных данных
+        $rules = [
+            'name' => 'required|string|max:100',
+            'password' => 'required|string|max:255'
+        ];
+        
+        $messages = [
+            'name.required' => 'Имя пользователя обязательно',
+            'password.required' => 'Пароль обязателен'
+        ];
+        
+        if (!$this->validate($data, $rules, $messages)) {
             return;
         }
         
-        $name = trim($data['name']);
-        $password = $data['password'];
+        $validatedData = $this->getValidatedData();
+        
+        $name = trim($validatedData['name']);
+        $password = $validatedData['password'];
+        
+        // Дополнительная защита от слишком длинных строк (на всякий случай)
+        if (strlen($name) > 100) {
+            $this->error('Имя пользователя не должно превышать 100 символов', 400);
+            return;
+        }
+        
+        if (strlen($password) > 255) {
+            $this->error('Пароль слишком длинный', 400);
+            return;
+        }
         
         // Ищем пользователя
         $userModel = new User();
         $user = $userModel->authenticate($name, $password);
         
         if (!$user) {
+            // Логируем неудачную попытку входа (без пароля)
+            $this->logFailedLogin($name);
             $this->error('Неверное имя пользователя или пароль', 401);
+            return;
+        }
+        
+        // Проверяем, не заблокирован ли пользователь (если есть поле deleted_at)
+        if (isset($user['deleted_at']) && $user['deleted_at'] !== null) {
+            $this->error('Учётная запись заблокирована', 403);
             return;
         }
         
@@ -41,8 +71,12 @@ class AuthController extends Controller
         $_SESSION['user_name'] = $user['name'];
         $_SESSION['user_role'] = $user['role'];
         
+        // Обновляем время последнего входа (если есть поле last_login)
+        // $userModel->updateLastLogin($user['id']);
+        
         // Возвращаем данные пользователя (без пароля)
         unset($user['password_hash']);
+        unset($user['deleted_at']);
         
         $this->success([
             'user' => $user,
@@ -93,5 +127,26 @@ class AuthController extends Controller
                 'authenticated' => false
             ]);
         }
+    }
+    
+    /**
+     * Логирование неудачных попыток входа
+     * 
+     * @param string $username
+     */
+    private function logFailedLogin($username)
+    {
+        $logFile = ROOT_PATH . '/logs/auth.log';
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $time = date('Y-m-d H:i:s');
+        $logEntry = "[{$time}] Failed login attempt - Username: {$username}, IP: {$ip}\n";
+        
+        // Создаём папку для логов, если её нет
+        $logDir = dirname($logFile);
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
     }
 }

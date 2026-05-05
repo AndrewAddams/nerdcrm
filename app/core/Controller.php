@@ -6,6 +6,8 @@
  * Содержит общие методы для работы с ответами, аутентификацией и валидацией
  */
 
+require_once __DIR__ . '/Validator.php';
+
 class Controller
 {
     /**
@@ -14,6 +16,13 @@ class Controller
      * @var array|null
      */
     protected $currentUser = null;
+    
+    /**
+     * Экземпляр валидатора
+     * 
+     * @var Validator|null
+     */
+    protected $validator = null;
     
     /**
      * Конструктор — проверяем аутентификацию
@@ -28,6 +37,9 @@ class Controller
                 'role' => $_SESSION['user_role']
             ];
         }
+        
+        // Инициализируем валидатор
+        $this->validator = new Validator();
     }
     
     /**
@@ -162,107 +174,105 @@ class Controller
         // Если это JSON
         if (strpos($contentType, 'application/json') !== false) {
             $input = file_get_contents('php://input');
-            return json_decode($input, true) ?? [];
+            $data = json_decode($input, true) ?? [];
+        } else {
+            // Иначе возвращаем $_POST
+            $data = $_POST;
         }
         
-        // Иначе возвращаем $_POST
-        return $_POST;
+        // Автоматически очищаем все входящие данные от XSS
+        return $this->validator->sanitize($data);
     }
     
     /**
-     * Валидировать обязательные поля
+     * НОВЫЙ МЕТОД: Строгая валидация данных
      * 
-     * @param array $data Данные для проверки
-     * @param array $required Список обязательных полей
-     * @return bool
+     * @param array $data Данные для валидации
+     * @param array $rules Правила валидации
+     * @param array $messages Кастомные сообщения об ошибках (опционально)
+     * @return bool true если валидация пройдена
      */
-    protected function validateRequired($data, $required)
+    protected function validate($data, $rules, $messages = [])
     {
-        foreach ($required as $field) {
-            if (empty($data[$field]) && $data[$field] !== '0' && $data[$field] !== 0) {
-                $this->error("Поле '{$field}' обязательно для заполнения");
-                return false;
-            }
+        if ($this->validator->validate($data, $rules, $messages)) {
+            return true;
         }
-        return true;
-    }
-    
-    /**
-     * Валидировать email
-     * 
-     * @param string $email
-     * @return bool
-     */
-    protected function validateEmail($email)
-    {
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->error('Некорректный формат email');
-            return false;
-        }
-        return true;
-    }
-    
-    /**
-     * Валидировать телефон (простая проверка)
-     * 
-     * @param string $phone
-     * @return bool
-     */
-    protected function validatePhone($phone)
-    {
-        // Убираем все нецифровые символы
-        $digits = preg_replace('/[^0-9]/', '', $phone);
         
-        if (strlen($digits) < 10) {
-            $this->error('Некорректный номер телефона');
-            return false;
-        }
-        return true;
+        // Если валидация не пройдена — возвращаем ошибку
+        $errors = $this->validator->getErrors();
+        $errorMessage = $this->formatValidationErrors($errors);
+        
+        $this->error($errorMessage, 422);
+        return false;
     }
     
     /**
-     * Валидировать URL
+     * Получить очищенные данные после валидации
      * 
-     * @param string $url
-     * @return bool
+     * @return array
      */
-    protected function validateUrl($url)
+    protected function getValidatedData()
     {
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            $this->error('Некорректный формат ссылки');
-            return false;
-        }
-        return true;
+        return $this->validator->getSanitizedData();
     }
     
     /**
-     * Валидировать положительное число
+     * Форматирование ошибок валидации в читаемую строку
      * 
-     * @param mixed $value
-     * @param string $fieldName
-     * @return bool
+     * @param array $errors Ошибки валидации
+     * @return string
      */
-    protected function validatePositiveNumber($value, $fieldName = 'Значение')
+    private function formatValidationErrors($errors)
     {
-        if (!is_numeric($value) || $value < 0) {
-            $this->error("{$fieldName} должно быть неотрицательным числом");
-            return false;
+        $messages = [];
+        foreach ($errors as $field => $fieldErrors) {
+            // Преобразуем имя поля в человекочитаемый вид
+            $fieldName = $this->getFieldName($field);
+            $messages[] = $fieldName . ': ' . implode(', ', $fieldErrors);
         }
-        return true;
+        return implode('; ', $messages);
     }
     
     /**
-     * Валидировать процент скидки (0-100)
+     * Преобразование имени поля в человекочитаемый вид
      * 
-     * @param int $percent
-     * @return bool
+     * @param string $field Имя поля
+     * @return string
      */
-    protected function validateDiscountPercent($percent)
+    private function getFieldName($field)
     {
-        if (!is_numeric($percent) || $percent < 0 || $percent > 100) {
-            $this->error('Скидка должна быть числом от 0 до 100');
-            return false;
-        }
-        return true;
+        $names = [
+            'sale_label' => 'Метка продажи',
+            'source_id' => 'Источник заказа',
+            'link' => 'Ссылка',
+            'comments' => 'Комментарии',
+            'shipping_method_id' => 'Способ доставки',
+            'tracking_number' => 'Трек-номер',
+            'recipient_name' => 'Имя получателя',
+            'recipient_phone' => 'Телефон получателя',
+            'recipient_email' => 'E-mail получателя',
+            'shipping_cost' => 'Стоимость доставки',
+            'is_urgent' => 'Срочность заказа',
+            'items' => 'Товары',
+            'items.*.product_id' => 'ID товара',
+            'items.*.format_id' => 'Формат товара',
+            'items.*.discount_percent' => 'Скидка на товар',
+            'items.*.custom_price' => 'Цена (вручную)',
+            'order_id' => 'ID заказа',
+            'status_id' => 'Статус',
+            'order_ids' => 'ID заказов',
+        ];
+        
+        return $names[$field] ?? $field;
     }
+    
+    // =====================================================
+    // УСТАРЕВШИЕ МЕТОДЫ (УДАЛЕНЫ ДЛЯ БЕЗОПАСНОСТИ)
+    // Больше не используются. Вся валидация теперь через validate()
+    // =====================================================
+    
+    // Методы validateRequired(), validateEmail(), validatePhone(), 
+    // validateUrl(), validatePositiveNumber(), validateDiscountPercent()
+    // были УДАЛЕНЫ, так как они создавали дыры в безопасности.
+    // Используйте новый метод $this->validate() вместо них.
 }

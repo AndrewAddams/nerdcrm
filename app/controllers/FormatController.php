@@ -56,26 +56,33 @@ class FormatController extends Controller
         $this->success($formats);
     }
     
-/**
- * Получить формат по ID
- * GET /api/formats/{id}
- */
-public function show($params)
-{
-    if (!$this->requireAdmin()) {
-        return;
+    /**
+     * Получить формат по ID
+     * GET /api/formats/{id}
+     */
+    public function show($params)
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+        
+        $id = (int)$params['id'];
+        
+        // Валидация ID
+        $rules = ['id' => 'required|int|exists:formats,id'];
+        if (!$this->validate(['id' => $id], $rules)) {
+            return;
+        }
+        
+        $format = $this->formatModel->getById($id);
+        
+        if (!$format) {
+            $this->error('Формат не найден', 404);
+            return;
+        }
+        
+        $this->success($format);
     }
-    
-    $id = (int)$params['id'];
-    $format = $this->formatModel->getById($id);
-    
-    if (!$format) {
-        $this->error('Формат не найден', 404);
-        return;
-    }
-    
-    $this->success($format);
-}
 
     /**
      * Создать формат
@@ -89,23 +96,34 @@ public function show($params)
         
         $data = $this->getRequestData();
         
-        if (empty($data['name'])) {
-            $this->error('Название формата обязательно');
+        // Валидация
+        $rules = [
+            'name' => 'required|string|max:100',
+            'price' => 'required|numeric|min:0|max:1000000'
+        ];
+        
+        $messages = [
+            'name.required' => 'Название формата обязательно',
+            'name.max' => 'Название не должно превышать 100 символов',
+            'price.required' => 'Цена обязательна',
+            'price.numeric' => 'Цена должна быть числом',
+            'price.min' => 'Цена не может быть отрицательной',
+            'price.max' => 'Цена не может превышать 1 000 000 ₽'
+        ];
+        
+        if (!$this->validate($data, $rules, $messages)) {
             return;
         }
         
-        if (!isset($data['price']) || !is_numeric($data['price']) || $data['price'] < 0) {
-            $this->error('Цена должна быть неотрицательным числом');
-            return;
-        }
+        $validatedData = $this->getValidatedData();
         
         // Проверяем уникальность названия
-        if ($this->formatModel->nameExists($data['name'])) {
+        if ($this->formatModel->nameExists($validatedData['name'])) {
             $this->error('Формат с таким названием уже существует');
             return;
         }
         
-        $id = $this->formatModel->save($data['name'], $data['price']);
+        $id = $this->formatModel->save($validatedData['name'], $validatedData['price']);
         
         if (!$id) {
             $this->error('Ошибка при создании формата', 500);
@@ -129,15 +147,32 @@ public function show($params)
         $id = (int)$params['id'];
         $data = $this->getRequestData();
         
-        if (empty($data['name'])) {
-            $this->error('Название формата обязательно');
+        // Валидация ID
+        $idRules = ['id' => 'required|int|exists:formats,id'];
+        if (!$this->validate(['id' => $id], $idRules)) {
             return;
         }
         
-        if (!isset($data['price']) || !is_numeric($data['price']) || $data['price'] < 0) {
-            $this->error('Цена должна быть неотрицательным числом');
+        // Валидация данных
+        $rules = [
+            'name' => 'required|string|max:100',
+            'price' => 'required|numeric|min:0|max:1000000'
+        ];
+        
+        $messages = [
+            'name.required' => 'Название формата обязательно',
+            'name.max' => 'Название не должно превышать 100 символов',
+            'price.required' => 'Цена обязательна',
+            'price.numeric' => 'Цена должна быть числом',
+            'price.min' => 'Цена не может быть отрицательной',
+            'price.max' => 'Цена не может превышать 1 000 000 ₽'
+        ];
+        
+        if (!$this->validate($data, $rules, $messages)) {
             return;
         }
+        
+        $validatedData = $this->getValidatedData();
         
         // Проверяем существование формата
         $format = $this->formatModel->getById($id);
@@ -147,12 +182,12 @@ public function show($params)
         }
         
         // Проверяем уникальность названия (исключая текущий)
-        if ($this->formatModel->nameExists($data['name'], $id)) {
+        if ($this->formatModel->nameExists($validatedData['name'], $id)) {
             $this->error('Формат с таким названием уже существует');
             return;
         }
         
-        $result = $this->formatModel->save($data['name'], $data['price'], $id);
+        $result = $this->formatModel->save($validatedData['name'], $validatedData['price'], $id);
         
         if (!$result) {
             $this->error('Ошибка при обновлении формата', 500);
@@ -174,6 +209,12 @@ public function show($params)
         }
         
         $id = (int)$params['id'];
+        
+        // Валидация ID
+        $rules = ['id' => 'required|int|exists:formats,id'];
+        if (!$this->validate(['id' => $id], $rules)) {
+            return;
+        }
         
         // Проверяем существование формата
         $format = $this->formatModel->getById($id);
@@ -203,6 +244,13 @@ public function show($params)
         }
         
         $id = (int)$params['id'];
+        
+        // Валидация ID
+        $rules = ['id' => 'required|int|exists:formats,id'];
+        if (!$this->validate(['id' => $id], $rules)) {
+            return;
+        }
+        
         $price = $this->formatModel->getPrice($id);
         
         if ($price === null) {
@@ -225,6 +273,11 @@ public function show($params)
         
         $page = (int)($_GET['page'] ?? 1);
         $perPage = (int)($_GET['per_page'] ?? 20);
+        
+        // Валидация параметров пагинации
+        if ($page < 1) $page = 1;
+        if ($perPage < 1) $perPage = 20;
+        if ($perPage > 100) $perPage = 100;
         
         $result = $this->formatModel->getPaginated($page, $perPage);
         $this->success($result);

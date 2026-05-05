@@ -13,6 +13,9 @@ class SourceController extends Controller
 {
     private $sourceModel;
     
+    // Предопределённые источники, которые нельзя редактировать/удалять
+    private $protectedSources = ['ВК', 'Сайт'];
+    
     public function __construct()
     {
         parent::__construct();
@@ -47,26 +50,33 @@ class SourceController extends Controller
         $this->success($sources);
     }
     
-/**
- * Получить источник по ID
- * GET /api/sources/{id}
- */
-public function show($params)
-{
-    if (!$this->requireAdmin()) {
-        return;
+    /**
+     * Получить источник по ID
+     * GET /api/sources/{id}
+     */
+    public function show($params)
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+        
+        $id = (int)$params['id'];
+        
+        // Валидация ID
+        $rules = ['id' => 'required|int|exists:sources,id'];
+        if (!$this->validate(['id' => $id], $rules)) {
+            return;
+        }
+        
+        $source = $this->sourceModel->getById($id);
+        
+        if (!$source) {
+            $this->error('Источник не найден', 404);
+            return;
+        }
+        
+        $this->success($source);
     }
-    
-    $id = (int)$params['id'];
-    $source = $this->sourceModel->getById($id);
-    
-    if (!$source) {
-        $this->error('Источник не найден', 404);
-        return;
-    }
-    
-    $this->success($source);
-}
 
     /**
      * Создать источник
@@ -80,18 +90,29 @@ public function show($params)
         
         $data = $this->getRequestData();
         
-        if (empty($data['name'])) {
-            $this->error('Название источника обязательно');
+        // Валидация
+        $rules = [
+            'name' => 'required|string|max:100'
+        ];
+        
+        $messages = [
+            'name.required' => 'Название источника обязательно',
+            'name.max' => 'Название не должно превышать 100 символов'
+        ];
+        
+        if (!$this->validate($data, $rules, $messages)) {
             return;
         }
         
+        $validatedData = $this->getValidatedData();
+        
         // Проверяем уникальность названия
-        if ($this->sourceModel->nameExists($data['name'])) {
+        if ($this->sourceModel->nameExists($validatedData['name'])) {
             $this->error('Источник с таким названием уже существует');
             return;
         }
         
-        $id = $this->sourceModel->save($data['name']);
+        $id = $this->sourceModel->save($validatedData['name']);
         
         if (!$id) {
             $this->error('Ошибка при создании источника', 500);
@@ -115,10 +136,27 @@ public function show($params)
         $id = (int)$params['id'];
         $data = $this->getRequestData();
         
-        if (empty($data['name'])) {
-            $this->error('Название источника обязательно');
+        // Валидация ID
+        $idRules = ['id' => 'required|int|exists:sources,id'];
+        if (!$this->validate(['id' => $id], $idRules)) {
             return;
         }
+        
+        // Валидация данных
+        $rules = [
+            'name' => 'required|string|max:100'
+        ];
+        
+        $messages = [
+            'name.required' => 'Название источника обязательно',
+            'name.max' => 'Название не должно превышать 100 символов'
+        ];
+        
+        if (!$this->validate($data, $rules, $messages)) {
+            return;
+        }
+        
+        $validatedData = $this->getValidatedData();
         
         // Проверяем существование источника
         $source = $this->sourceModel->getById($id);
@@ -128,18 +166,18 @@ public function show($params)
         }
         
         // Запрещаем редактирование предопределённых источников
-        if (in_array($source['name'], ['ВК', 'Сайт'])) {
+        if (in_array($source['name'], $this->protectedSources)) {
             $this->error('Нельзя редактировать предопределённые источники');
             return;
         }
         
         // Проверяем уникальность названия (исключая текущий)
-        if ($this->sourceModel->nameExists($data['name'], $id)) {
+        if ($this->sourceModel->nameExists($validatedData['name'], $id)) {
             $this->error('Источник с таким названием уже существует');
             return;
         }
         
-        $result = $this->sourceModel->save($data['name'], $id);
+        $result = $this->sourceModel->save($validatedData['name'], $id);
         
         if (!$result) {
             $this->error('Ошибка при обновлении источника', 500);
@@ -162,6 +200,12 @@ public function show($params)
         
         $id = (int)$params['id'];
         
+        // Валидация ID
+        $rules = ['id' => 'required|int|exists:sources,id'];
+        if (!$this->validate(['id' => $id], $rules)) {
+            return;
+        }
+        
         // Проверяем существование источника
         $source = $this->sourceModel->getById($id);
         if (!$source) {
@@ -170,7 +214,7 @@ public function show($params)
         }
         
         // Запрещаем удаление предопределённых источников
-        if (in_array($source['name'], ['ВК', 'Сайт'])) {
+        if (in_array($source['name'], $this->protectedSources)) {
             $this->error('Нельзя удалить предопределённые источники');
             return;
         }
@@ -197,6 +241,11 @@ public function show($params)
         
         $page = (int)($_GET['page'] ?? 1);
         $perPage = (int)($_GET['per_page'] ?? 20);
+        
+        // Валидация параметров пагинации
+        if ($page < 1) $page = 1;
+        if ($perPage < 1) $perPage = 20;
+        if ($perPage > 100) $perPage = 100;
         
         $result = $this->sourceModel->getPaginated($page, $perPage);
         $this->success($result);

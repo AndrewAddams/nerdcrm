@@ -408,7 +408,7 @@ async function loadAllData() {
 }
 
 // Добавление строки товара с datalist
-function addNewItemRow(productId = null, formatId = null, discountPercent = 0, customPrice = null) {
+function addNewItemRow(productId = null, formatId = null, discountPercent = 0, customPrice = null, itemDbId = null) {
     const container = document.getElementById('itemsContainer');
     if (!container) return;
     
@@ -416,6 +416,11 @@ function addNewItemRow(productId = null, formatId = null, discountPercent = 0, c
     const row = document.createElement('div');
     row.className = 'item-row';
     row.dataset.itemId = itemId;
+    
+    // Сохраняем ID товара из БД (для редактирования)
+    if (itemDbId) {
+        row.dataset.dbId = itemDbId;
+    }
     
     const productDatalistId = `products_${itemId}`;
     let productOptions = '';
@@ -586,6 +591,7 @@ function getFormData() {
         const formatId = formatInput?.dataset?.formatId;
         const price = parseFloat(formatInput?.dataset?.price || 0);
         const customPrice = parseFloat(customPriceInput?.value || 0);
+        const itemDbId = row.dataset.dbId ? parseInt(row.dataset.dbId) : null;
         
         if (productId && formatId) {
             const itemData = {
@@ -594,6 +600,11 @@ function getFormData() {
                 discount_percent: parseInt(discountInput?.value || 0),
                 price: price
             };
+            
+            // Добавляем ID товара из БД (если есть)
+            if (itemDbId) {
+                itemData.id = itemDbId;
+            }
             
             // Если это формат "Свободная цена" — добавляем custom_price
             if (parseInt(formatId) == FLEXIBLE_PRICE_FORMAT_ID && customPrice > 0) {
@@ -648,7 +659,8 @@ function fillFormData(order) {
             if (item.format_id == FLEXIBLE_PRICE_FORMAT_ID) {
                 customPrice = item.price;
             }
-            addNewItemRow(item.product_id, item.format_id, item.discount_percent, customPrice);
+            // Передаём ID товара из БД для сохранения статуса
+            addNewItemRow(item.product_id, item.format_id, item.discount_percent, customPrice, item.id);
         });
     }
     updateTotals();

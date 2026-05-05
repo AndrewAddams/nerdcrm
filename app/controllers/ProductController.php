@@ -68,6 +68,13 @@ class ProductController extends Controller
         }
         
         $id = (int)$params['id'];
+        
+        // Валидация ID
+        $rules = ['id' => 'required|int|exists:products,id'];
+        if (!$this->validate(['id' => $id], $rules)) {
+            return;
+        }
+        
         $product = $this->productModel->getById($id);
         
         if (!$product) {
@@ -90,18 +97,31 @@ class ProductController extends Controller
         
         $data = $this->getRequestData();
         
-        if (empty($data['name'])) {
-            $this->error('Наименование товара обязательно');
+        // Валидация
+        $rules = [
+            'name' => 'required|string|max:255',
+            'short_description' => 'string|max:500',
+            'full_description' => 'string|max:5000'
+        ];
+        
+        $messages = [
+            'name.required' => 'Наименование товара обязательно',
+            'name.max' => 'Наименование не должно превышать 255 символов'
+        ];
+        
+        if (!$this->validate($data, $rules, $messages)) {
             return;
         }
         
+        $validatedData = $this->getValidatedData();
+        
         // Проверяем уникальность названия
-        if ($this->productModel->nameExists($data['name'])) {
+        if ($this->productModel->nameExists($validatedData['name'])) {
             $this->error('Товар с таким наименованием уже существует');
             return;
         }
         
-        $id = $this->productModel->save($data);
+        $id = $this->productModel->save($validatedData);
         
         if (!$id) {
             $this->error('Ошибка при создании товара', 500);
@@ -125,10 +145,29 @@ class ProductController extends Controller
         $id = (int)$params['id'];
         $data = $this->getRequestData();
         
-        if (empty($data['name'])) {
-            $this->error('Наименование товара обязательно');
+        // Валидация ID
+        $idRules = ['id' => 'required|int|exists:products,id'];
+        if (!$this->validate(['id' => $id], $idRules)) {
             return;
         }
+        
+        // Валидация данных
+        $rules = [
+            'name' => 'required|string|max:255',
+            'short_description' => 'string|max:500',
+            'full_description' => 'string|max:5000'
+        ];
+        
+        $messages = [
+            'name.required' => 'Наименование товара обязательно',
+            'name.max' => 'Наименование не должно превышать 255 символов'
+        ];
+        
+        if (!$this->validate($data, $rules, $messages)) {
+            return;
+        }
+        
+        $validatedData = $this->getValidatedData();
         
         // Проверяем существование товара
         $product = $this->productModel->getById($id);
@@ -138,12 +177,12 @@ class ProductController extends Controller
         }
         
         // Проверяем уникальность названия (исключая текущий)
-        if ($this->productModel->nameExists($data['name'], $id)) {
+        if ($this->productModel->nameExists($validatedData['name'], $id)) {
             $this->error('Товар с таким наименованием уже существует');
             return;
         }
         
-        $result = $this->productModel->save($data, $id);
+        $result = $this->productModel->save($validatedData, $id);
         
         if (!$result) {
             $this->error('Ошибка при обновлении товара', 500);
@@ -166,10 +205,16 @@ class ProductController extends Controller
         
         $id = (int)$params['id'];
         
+        // Валидация ID
+        $rules = ['id' => 'required|int|exists:products,id'];
+        if (!$this->validate(['id' => $id], $rules)) {
+            return;
+        }
+        
         // Проверяем, используется ли товар в заказах
         $orderItemModel = new OrderItem();
         $sql = "SELECT COUNT(*) as count FROM order_items WHERE product_id = :product_id";
-        $stmt = $this->productModel->query($sql, ['product_id' => $id]);
+        $stmt = $orderItemModel->query($sql, ['product_id' => $id]);
         $result = $stmt->fetch();
         
         if ($result['count'] > 0) {
@@ -211,8 +256,20 @@ class ProductController extends Controller
             return;
         }
         
+        // Проверяем размер файла (максимум 5MB)
+        if ($file['size'] > 5 * 1024 * 1024) {
+            $this->error('Файл не должен превышать 5MB');
+            return;
+        }
+        
+        // Создаём папку для временных файлов, если её нет
+        $tempDir = ROOT_PATH . '/uploads/temp/';
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        
         // Временно сохраняем файл
-        $tempFile = ROOT_PATH . '/uploads/temp/' . uniqid() . '.csv';
+        $tempFile = $tempDir . uniqid() . '.csv';
         if (!move_uploaded_file($file['tmp_name'], $tempFile)) {
             $this->error('Ошибка сохранения файла');
             return;
@@ -278,8 +335,22 @@ class ProductController extends Controller
                     continue;
                 }
                 
+                // Валидация длины имени
+                if (mb_strlen($name) > 255) {
+                    $errors[] = "Строка " . ($rowIndex + 2) . ": наименование слишком длинное (макс. 255 символов)";
+                    continue;
+                }
+                
                 $shortDescription = ($shortDescIndex !== false) ? trim($row[$shortDescIndex] ?? '') : '';
                 $fullDescription = ($fullDescIndex !== false) ? trim($row[$fullDescIndex] ?? '') : '';
+                
+                // Ограничиваем длину описаний
+                if (mb_strlen($shortDescription) > 500) {
+                    $shortDescription = mb_substr($shortDescription, 0, 500);
+                }
+                if (mb_strlen($fullDescription) > 5000) {
+                    $fullDescription = mb_substr($fullDescription, 0, 5000);
+                }
                 
                 // Проверяем, есть ли ID в файле
                 $id = ($idIndex !== false && !empty($row[$idIndex])) ? (int)$row[$idIndex] : null;
@@ -329,7 +400,9 @@ class ProductController extends Controller
             }
             
             // Удаляем временный файл
-            unlink($tempFile);
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
             
             $this->success([
                 'added' => $added,

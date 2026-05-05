@@ -13,6 +13,9 @@ class ShippingController extends Controller
 {
     private $shippingModel;
     
+    // Предопределённые способы доставки, которые нельзя редактировать/удалять
+    private $protectedMethods = ['СДЭК', 'Яндекс', 'Почта России'];
+    
     public function __construct()
     {
         parent::__construct();
@@ -47,26 +50,33 @@ class ShippingController extends Controller
         $this->success($methods);
     }
     
-/**
- * Получить способ доставки по ID
- * GET /api/shipping-methods/{id}
- */
-public function show($params)
-{
-    if (!$this->requireAdmin()) {
-        return;
+    /**
+     * Получить способ доставки по ID
+     * GET /api/shipping-methods/{id}
+     */
+    public function show($params)
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+        
+        $id = (int)$params['id'];
+        
+        // Валидация ID
+        $rules = ['id' => 'required|int|exists:shipping_methods,id'];
+        if (!$this->validate(['id' => $id], $rules)) {
+            return;
+        }
+        
+        $method = $this->shippingModel->getById($id);
+        
+        if (!$method) {
+            $this->error('Способ доставки не найден', 404);
+            return;
+        }
+        
+        $this->success($method);
     }
-    
-    $id = (int)$params['id'];
-    $method = $this->shippingModel->getById($id);
-    
-    if (!$method) {
-        $this->error('Способ доставки не найден', 404);
-        return;
-    }
-    
-    $this->success($method);
-}
 
     /**
      * Создать способ доставки
@@ -80,18 +90,29 @@ public function show($params)
         
         $data = $this->getRequestData();
         
-        if (empty($data['name'])) {
-            $this->error('Название способа доставки обязательно');
+        // Валидация
+        $rules = [
+            'name' => 'required|string|max:100'
+        ];
+        
+        $messages = [
+            'name.required' => 'Название способа доставки обязательно',
+            'name.max' => 'Название не должно превышать 100 символов'
+        ];
+        
+        if (!$this->validate($data, $rules, $messages)) {
             return;
         }
         
+        $validatedData = $this->getValidatedData();
+        
         // Проверяем уникальность названия
-        if ($this->shippingModel->nameExists($data['name'])) {
+        if ($this->shippingModel->nameExists($validatedData['name'])) {
             $this->error('Способ доставки с таким названием уже существует');
             return;
         }
         
-        $id = $this->shippingModel->save($data['name']);
+        $id = $this->shippingModel->save($validatedData['name']);
         
         if (!$id) {
             $this->error('Ошибка при создании способа доставки', 500);
@@ -115,10 +136,27 @@ public function show($params)
         $id = (int)$params['id'];
         $data = $this->getRequestData();
         
-        if (empty($data['name'])) {
-            $this->error('Название способа доставки обязательно');
+        // Валидация ID
+        $idRules = ['id' => 'required|int|exists:shipping_methods,id'];
+        if (!$this->validate(['id' => $id], $idRules)) {
             return;
         }
+        
+        // Валидация данных
+        $rules = [
+            'name' => 'required|string|max:100'
+        ];
+        
+        $messages = [
+            'name.required' => 'Название способа доставки обязательно',
+            'name.max' => 'Название не должно превышать 100 символов'
+        ];
+        
+        if (!$this->validate($data, $rules, $messages)) {
+            return;
+        }
+        
+        $validatedData = $this->getValidatedData();
         
         // Проверяем существование
         $method = $this->shippingModel->getById($id);
@@ -128,18 +166,18 @@ public function show($params)
         }
         
         // Запрещаем редактирование предопределённых способов
-        if (in_array($method['name'], ['СДЭК', 'Яндекс', 'Почта России'])) {
+        if (in_array($method['name'], $this->protectedMethods)) {
             $this->error('Нельзя редактировать предопределённые способы доставки');
             return;
         }
         
         // Проверяем уникальность названия (исключая текущий)
-        if ($this->shippingModel->nameExists($data['name'], $id)) {
+        if ($this->shippingModel->nameExists($validatedData['name'], $id)) {
             $this->error('Способ доставки с таким названием уже существует');
             return;
         }
         
-        $result = $this->shippingModel->save($data['name'], $id);
+        $result = $this->shippingModel->save($validatedData['name'], $id);
         
         if (!$result) {
             $this->error('Ошибка при обновлении способа доставки', 500);
@@ -162,6 +200,12 @@ public function show($params)
         
         $id = (int)$params['id'];
         
+        // Валидация ID
+        $rules = ['id' => 'required|int|exists:shipping_methods,id'];
+        if (!$this->validate(['id' => $id], $rules)) {
+            return;
+        }
+        
         // Проверяем существование
         $method = $this->shippingModel->getById($id);
         if (!$method) {
@@ -170,7 +214,7 @@ public function show($params)
         }
         
         // Запрещаем удаление предопределённых способов
-        if (in_array($method['name'], ['СДЭК', 'Яндекс', 'Почта России'])) {
+        if (in_array($method['name'], $this->protectedMethods)) {
             $this->error('Нельзя удалить предопределённые способы доставки');
             return;
         }
@@ -197,6 +241,11 @@ public function show($params)
         
         $page = (int)($_GET['page'] ?? 1);
         $perPage = (int)($_GET['per_page'] ?? 20);
+        
+        // Валидация параметров пагинации
+        if ($page < 1) $page = 1;
+        if ($perPage < 1) $perPage = 20;
+        if ($perPage > 100) $perPage = 100;
         
         $result = $this->shippingModel->getPaginated($page, $perPage);
         $this->success($result);

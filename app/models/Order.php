@@ -236,39 +236,67 @@ class Order extends Model
         }
     }
     
-    /**
-     * Обновить заказ
-     */
-    public function updateOrder($orderId, $orderData, $items)
-    {
-        $this->db->beginTransaction();
+/**
+ * Обновить заказ
+ */
+public function updateOrder($orderId, $orderData, $items)
+{
+    $this->db->beginTransaction();
+    
+    try {
+        // Обновляем данные заказа
+        $updateData = [
+            'sale_label' => $orderData['sale_label'],
+            'source_id' => $orderData['source_id'],
+            'link' => $orderData['link'],
+            'comments' => $orderData['comments'],
+            'shipping_method_id' => $orderData['shipping_method_id'],
+            'tracking_number' => $orderData['tracking_number'],
+            'recipient_name' => $orderData['recipient_name'],
+            'recipient_phone' => $orderData['recipient_phone'],
+            'recipient_email' => $orderData['recipient_email'],
+            'shipping_cost' => $orderData['shipping_cost'],
+            'total_items_cost' => $orderData['total_items_cost'],
+            'total_cost' => $orderData['total_cost'],
+            'is_urgent' => $orderData['is_urgent'] ?? 0
+        ];
         
-        try {
-            $updateData = [
-                'sale_label' => $orderData['sale_label'],
-                'source_id' => $orderData['source_id'],
-                'link' => $orderData['link'],
-                'comments' => $orderData['comments'],
-                'shipping_method_id' => $orderData['shipping_method_id'],
-                'tracking_number' => $orderData['tracking_number'],
-                'recipient_name' => $orderData['recipient_name'],
-                'recipient_phone' => $orderData['recipient_phone'],
-                'recipient_email' => $orderData['recipient_email'],
-                'shipping_cost' => $orderData['shipping_cost'],
-                'total_items_cost' => $orderData['total_items_cost'],
-                'total_cost' => $orderData['total_cost'],
-                'is_urgent' => $orderData['is_urgent'] ?? 0
-            ];
-            
-            if (!$this->update($orderId, $updateData)) {
-                throw new Exception('Ошибка обновления заказа');
-            }
-            
-            $itemModel = new OrderItem();
-            $sql = "DELETE FROM order_items WHERE order_id = :order_id";
-            $this->db->query($sql, ['order_id' => $orderId]);
-            
-            foreach ($items as $item) {
+        if (!$this->update($orderId, $updateData)) {
+            throw new Exception('Ошибка обновления заказа');
+        }
+        
+        $itemModel = new OrderItem();
+        
+        // Получаем текущие ID товаров в заказе
+        $currentItemIds = [];
+        $sql = "SELECT id FROM order_items WHERE order_id = :order_id";
+        $stmt = $this->db->query($sql, ['order_id' => $orderId]);
+        $currentItems = $stmt->fetchAll();
+        foreach ($currentItems as $currentItem) {
+            $currentItemIds[] = $currentItem['id'];
+        }
+        
+        $newItemIds = [];
+        
+        // Обновляем или создаём каждый товар
+        foreach ($items as $item) {
+            if (!empty($item['id'])) {
+                // Существующий товар — обновляем
+                $itemData = [
+                    'product_id' => $item['product_id'],
+                    'format_id' => $item['format_id'],
+                    'status_order_item_id' => $item['status_order_item_id'],
+                    'price' => $item['price'],
+                    'discount_percent' => $item['discount_percent'],
+                    'price_with_discount' => $item['price_with_discount']
+                ];
+                
+                if (!$itemModel->update($item['id'], $itemData)) {
+                    throw new Exception('Ошибка обновления товара заказа');
+                }
+                $newItemIds[] = $item['id'];
+            } else {
+                // Новый товар — создаём
                 $itemData = [
                     'order_id' => $orderId,
                     'product_id' => $item['product_id'],
@@ -279,21 +307,31 @@ class Order extends Model
                     'price_with_discount' => $item['price_with_discount']
                 ];
                 
-                if (!$itemModel->create($itemData)) {
+                $newItemId = $itemModel->create($itemData);
+                if (!$newItemId) {
                     throw new Exception('Ошибка создания товара заказа');
                 }
+                $newItemIds[] = $newItemId;
             }
-            
-            $this->db->commit();
-            return true;
-            
-        } catch (Exception $e) {
-            $this->db->rollback();
-            error_log("Ошибка обновления заказа: " . $e->getMessage());
-            return false;
         }
+        
+        // Удаляем товары, которые были удалены из заказа
+        $itemsToDelete = array_diff($currentItemIds, $newItemIds);
+        if (!empty($itemsToDelete)) {
+            $placeholders = implode(',', array_fill(0, count($itemsToDelete), '?'));
+            $sql = "DELETE FROM order_items WHERE id IN ({$placeholders})";
+            $this->db->query($sql, $itemsToDelete);
+        }
+        
+        $this->db->commit();
+        return true;
+        
+    } catch (Exception $e) {
+        $this->db->rollback();
+        error_log("Ошибка обновления заказа: " . $e->getMessage());
+        return false;
     }
-    
+}    
     /**
      * Обновить статус заказа или оплаты
      */

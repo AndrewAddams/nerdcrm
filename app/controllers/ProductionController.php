@@ -9,6 +9,7 @@
 require_once __DIR__ . '/../core/Controller.php';
 require_once __DIR__ . '/../models/OrderItem.php';
 require_once __DIR__ . '/../models/Order.php';
+require_once __DIR__ . '/../models/Status.php';
 
 // Константа для формата "Свободная цена" (если файл constants.php не загружен)
 if (!defined('FLEXIBLE_PRICE_FORMAT_ID')) {
@@ -55,8 +56,17 @@ class ProductionController extends Controller
         $itemId = (int)$params['itemId'];
         $data = $this->getRequestData();
         
-        if (empty($data['status_id'])) {
-            $this->error('Не указан статус');
+        // Валидация
+        $rules = [
+            'status_id' => 'required|int|in:6,7,8'
+        ];
+        
+        $messages = [
+            'status_id.required' => 'Не указан статус',
+            'status_id.in' => 'Недопустимый статус товара (допустимы: 6-В работе, 7-Сделать, 8-Готов)'
+        ];
+        
+        if (!$this->validate($data, $rules, $messages)) {
             return;
         }
         
@@ -120,13 +130,21 @@ class ProductionController extends Controller
         
         $data = $this->getRequestData();
         
-        if (empty($data['item_ids']) || !is_array($data['item_ids'])) {
-            $this->error('Не выбраны товары');
-            return;
-        }
+        // Валидация
+        $rules = [
+            'item_ids' => 'required|array|min:1',
+            'item_ids.*' => 'int|exists:order_items,id',
+            'status_id' => 'required|int|in:6,7,8'
+        ];
         
-        if (empty($data['status_id'])) {
-            $this->error('Не указан статус');
+        $messages = [
+            'item_ids.required' => 'Не выбраны товары',
+            'item_ids.min' => 'Выберите хотя бы один товар',
+            'status_id.required' => 'Не указан статус',
+            'status_id.in' => 'Недопустимый статус товара'
+        ];
+        
+        if (!$this->validate($data, $rules, $messages)) {
             return;
         }
         
@@ -161,6 +179,13 @@ class ProductionController extends Controller
         
         $itemId = (int)$params['itemId'];
         
+        // Проверяем, существует ли товар
+        $item = $this->orderItemModel->find($itemId);
+        if (!$item) {
+            $this->error('Товар не найден', 404);
+            return;
+        }
+        
         // Получаем ID статуса "Готов"
         $statusModel = new Status();
         $readyStatus = $statusModel->getByName('order_item', 'Готов');
@@ -191,6 +216,13 @@ class ProductionController extends Controller
         }
         
         $orderId = (int)$params['orderId'];
+        
+        // Проверяем существование заказа
+        $order = $this->orderModel->find($orderId);
+        if (!$order) {
+            $this->error('Заказ не найден', 404);
+            return;
+        }
         
         // Получаем ID статуса "Готов"
         $statusModel = new Status();

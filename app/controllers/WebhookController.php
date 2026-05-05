@@ -12,7 +12,7 @@ class WebhookController extends Controller
 {
     private $tildaOrderModel;
     
-    // Секретный токен для защиты вебхука
+    // Секретный токен для защиты вебхука (НЕ МЕНЯТЬ!)
     private $secretToken = 'WZ5W8KAiNGcAGveHNobm2xKiaiV7P9ufUip4XKoU793HSX3qMA';
     
     public function __construct()
@@ -41,6 +41,13 @@ class WebhookController extends Controller
         if (empty($rawInput)) {
             http_response_code(400);
             echo json_encode(['error' => 'Empty request body']);
+            exit;
+        }
+        
+        // Ограничиваем размер входящих данных (максимум 2MB)
+        if (strlen($rawInput) > 2 * 1024 * 1024) {
+            http_response_code(413);
+            echo json_encode(['error' => 'Request body too large']);
             exit;
         }
         
@@ -87,14 +94,21 @@ class WebhookController extends Controller
             return;
         }
         
+        // Валидация параметров фильтрации
         $filters = [];
         
-        if (isset($_GET['year']) && $_GET['year']) {
-            $filters['year'] = (int)$_GET['year'];
+        if (isset($_GET['year']) && $_GET['year'] !== '') {
+            $year = (int)$_GET['year'];
+            if ($year >= 2000 && $year <= 2100) {
+                $filters['year'] = $year;
+            }
         }
         
-        if (isset($_GET['month']) && $_GET['month']) {
-            $filters['month'] = (int)$_GET['month'];
+        if (isset($_GET['month']) && $_GET['month'] !== '') {
+            $month = (int)$_GET['month'];
+            if ($month >= 1 && $month <= 12) {
+                $filters['month'] = $month;
+            }
         }
         
         $orders = $this->tildaOrderModel->getAllWithDates();
@@ -129,29 +143,29 @@ class WebhookController extends Controller
         $this->success($folders);
     }
     
-/**
- * Получить количество необработанных заказов Tilda
- * GET /api/tilda/unread-count
- */
-public function getUnreadCount()
-{
-    if (!$this->requireAuth()) {
-        return;
-    }
-    
-    try {
-        // Используем прямой запрос к БД через модель
-        $sql = "SELECT COUNT(*) as count FROM tilda_orders WHERE is_processed = 0 AND deleted_at IS NULL";
-        $stmt = $this->tildaOrderModel->query($sql);
-        $result = $stmt->fetch();
+    /**
+     * Получить количество необработанных заказов Tilda
+     * GET /api/tilda/unread-count
+     */
+    public function getUnreadCount()
+    {
+        if (!$this->requireAuth()) {
+            return;
+        }
         
-        $this->success(['count' => (int)$result['count']]);
-    } catch (Exception $e) {
-        // Логируем ошибку
-        error_log("Ошибка в getUnreadCount: " . $e->getMessage());
-        $this->error('Ошибка получения счётчика', 500);
+        try {
+            // Используем прямой запрос к БД через модель
+            $sql = "SELECT COUNT(*) as count FROM tilda_orders WHERE is_processed = 0 AND deleted_at IS NULL";
+            $stmt = $this->tildaOrderModel->query($sql);
+            $result = $stmt->fetch();
+            
+            $this->success(['count' => (int)$result['count']]);
+        } catch (Exception $e) {
+            // Логируем ошибку
+            error_log("Ошибка в getUnreadCount: " . $e->getMessage());
+            $this->error('Ошибка получения счётчика', 500);
+        }
     }
-}
     
     /**
      * Удалить заказ Tilda
@@ -164,6 +178,13 @@ public function getUnreadCount()
         }
         
         $id = (int)$params['id'];
+        
+        // Валидация ID
+        $rules = ['id' => 'required|int|exists:tilda_orders,id'];
+        if (!$this->validate(['id' => $id], $rules)) {
+            return;
+        }
+        
         $result = $this->tildaOrderModel->delete($id);
         
         if (!$result) {
@@ -185,6 +206,13 @@ public function getUnreadCount()
         }
         
         $id = (int)$params['id'];
+        
+        // Валидация ID
+        $rules = ['id' => 'required|int|exists:tilda_orders,id'];
+        if (!$this->validate(['id' => $id], $rules)) {
+            return;
+        }
+        
         $result = $this->tildaOrderModel->markAsProcessed($id);
         
         if (!$result) {
@@ -197,6 +225,8 @@ public function getUnreadCount()
     
     /**
      * Логирование вебхуков
+     * 
+     * @param string $data Данные для логирования
      */
     private function logWebhook($data)
     {
@@ -206,7 +236,23 @@ public function getUnreadCount()
         }
         
         $logFile = $logDir . '/webhook.log';
+        
+        // Ограничиваем размер лог-файла (максимум 50MB)
+        if (file_exists($logFile) && filesize($logFile) > 50 * 1024 * 1024) {
+            // Архивируем старый лог и создаём новый
+            $archiveFile = $logDir . '/webhook_' . date('Y-m-d_His') . '.log';
+            rename($logFile, $archiveFile);
+            
+            // Оставляем только последние 5 архивов
+            $archives = glob($logDir . '/webhook_*.log');
+            if (count($archives) > 5) {
+                foreach (array_slice($archives, 0, count($archives) - 5) as $oldFile) {
+                    unlink($oldFile);
+                }
+            }
+        }
+        
         $logEntry = date('Y-m-d H:i:s') . "\n" . $data . "\n---\n";
-        file_put_contents($logFile, $logEntry, FILE_APPEND);
+        file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
     }
 }
